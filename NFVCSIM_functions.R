@@ -185,7 +185,7 @@ get.func.network = function(n, max.points, net_type,Sige1,eps){
     DkW2 = DkW%*%DkW
     DkW3 = DkW2%*%DkW
     DkW4 = DkW3%*%DkW
-    right.mat = as.vector(X%*%A)+g+eps1[,m]
+    right.mat = as.vector(X%*%A)+g+eta+eps1[,m]
     Ymat[,m] = as.vector(right.mat+DkW%*%right.mat+DkW2%*%right.mat+DkW3%*%right.mat+DkW4%*%right.mat)
   }
   
