@@ -8,11 +8,10 @@ library(mvtnorm)
 library(KernSmooth)
 library(VGAM)
 library(methods)
-Rcpp::sourceCpp("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/NFVCSIM_functions_rcpp.cpp")
-Rcpp::sourceCpp("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/NFVCSIM_pred_functions_rcpp.cpp")
-# Rcpp::sourceCpp("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/FVCSIM_pred_functions_rcpp.cpp")
+source("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/NFVCSIM_pred_functions.R")
+source("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/FVCSIM_pred_functions.R")
+source("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/NFVC_pred_func.R")
 source("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/NFVC_func.R")
-Rcpp::sourceCpp("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/NFVC_pred_func.cpp")
 source("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/net_type_functions.R")
 
 n = 200
@@ -42,14 +41,14 @@ Sige = as.matrix(Sige)
 
 
 
-# NFVCSIM_pred = list(test_IMSE=numeric(Nrep),
-#                     train_IMSE = numeric(Nrep),
-#                     test_R2 = numeric(Nrep),
-#                     train_R2 = numeric(Nrep))
-# FVCSIM_pred = list(test_IMSE=numeric(Nrep),
-#                    train_IMSE = numeric(Nrep),
-#                    test_R2 = numeric(Nrep),
-#                    train_R2 = numeric(Nrep))
+NFVCSIM_pred = list(test_IMSE=numeric(Nrep),
+                    train_IMSE = numeric(Nrep),
+                    test_R2 = numeric(Nrep),
+                    train_R2 = numeric(Nrep))
+FVCSIM_pred = list(test_IMSE=numeric(Nrep),
+                   train_IMSE = numeric(Nrep),
+                   test_R2 = numeric(Nrep),
+                   train_R2 = numeric(Nrep))
 
 NFVC_pred = list(test_IMSE=numeric(Nrep),
                     train_IMSE = numeric(Nrep),
@@ -86,20 +85,19 @@ for (i in 1:Nrep){
       NFVC_pred$train_R2[i] = NFVC_esti_pred$train_R2
       
       
-      # NFVCSIM_esti_pred = NFVCSIM_pred_func_rcpp(dat,max.points,D0,B0,Sige,beta0,verbose=FALSE)
+      NFVCSIM_esti_pred = NFVCSIM_pred_func_rcpp(dat,max.points,D0,B0,Sige,beta0,verbose=FALSE)
       # 
-      # NFVCSIM_pred$test_IMSE[i] = NFVCSIM_esti_pred$test_IMSE
-      # NFVCSIM_pred$train_IMSE[i] = NFVCSIM_esti_pred$train_IMSE
-      # NFVCSIM_pred$test_R2[i] = NFVCSIM_esti_pred$test_R2
-      # NFVCSIM_pred$train_R2[i] = NFVCSIM_esti_pred$train_R2
-      # # train_coef[i] = NFVCSIM_esti_pred$train_coef
-      # 
-      # FVCSIM_esti_pred = FVCSIM_pred_func_rcpp(dat,max.points,beta0,verbose=FALSE)
-      # 
-      # FVCSIM_pred$test_IMSE[i] = FVCSIM_esti_pred$test_IMSE
-      # FVCSIM_pred$train_IMSE[i] = FVCSIM_esti_pred$train_IMSE
-      # FVCSIM_pred$test_R2[i] = FVCSIM_esti_pred$test_R2
-      # FVCSIM_pred$train_R2[i] = FVCSIM_esti_pred$train_R2
+      NFVCSIM_pred$test_IMSE[i] = NFVCSIM_esti_pred$test_IMSE
+      NFVCSIM_pred$train_IMSE[i] = NFVCSIM_esti_pred$train_IMSE
+      NFVCSIM_pred$test_R2[i] = NFVCSIM_esti_pred$test_R2
+      NFVCSIM_pred$train_R2[i] = NFVCSIM_esti_pred$train_R2
+     
+      FVCSIM_esti_pred = FVCSIM_pred_func_rcpp(dat,max.points,beta0,verbose=FALSE)
+      
+      FVCSIM_pred$test_IMSE[i] = FVCSIM_esti_pred$test_IMSE
+      FVCSIM_pred$train_IMSE[i] = FVCSIM_esti_pred$train_IMSE
+      FVCSIM_pred$test_R2[i] = FVCSIM_esti_pred$test_R2
+      FVCSIM_pred$train_R2[i] = FVCSIM_esti_pred$train_R2
       
       
   
@@ -113,11 +111,11 @@ for (i in 1:Nrep){
 
 }
 
-all_result = list(NFVC_results = NFVC_pred)
+all_result = list(NFVC_results = NFVC_pred,NFVCISM_results = NFVCSIM_pred,FVCSIM_results = FVCSIM_pred)
 
 filename = paste("NFVC-W5-pred-gamma-Sige1-", n, "-", max.points, ".rda", sep = "")
 save(all_result, file = filename)
-# load("~/Documents/NFVCSIM/Code_NFVCSIM/NFVCSIM_code/NFVCSIM-3-pred-norm-alpha1.8-Sige1-50-25.rda")
+
 NFVC_final_results <- list(
   test_IMSE = round(median(all_result$NFVC_results$test_IMSE),4),
   train_IMSE = round(median(all_result$NFVC_results$train_IMSE),4),
@@ -125,21 +123,21 @@ NFVC_final_results <- list(
   train_R2 = round(median(all_result$NFVC_results$train_R2),4)
 )
 NFVC_final_results
-# NFVCSIM_final_results <- list(
-#   test_IMSE = round(median(all_result$NFVCSIM_results$test_IMSE),4),
-#   train_IMSE = round(median(all_result$NFVCSIM_results$train_IMSE),4),
-#   test_R2 = round(median(all_result$NFVCSIM_results$test_R2),4),
-#   train_R2 = round(median(all_result$NFVCSIM_results$train_R2),4)
-# )
+NFVCSIM_final_results <- list(
+ test_IMSE = round(median(all_result$NFVCSIM_results$test_IMSE),4),
+ train_IMSE = round(median(all_result$NFVCSIM_results$train_IMSE),4),
+ test_R2 = round(median(all_result$NFVCSIM_results$test_R2),4),
+ train_R2 = round(median(all_result$NFVCSIM_results$train_R2),4)
+)
 # 
-# FVCSIM_final_results <- list(
-#   test_IMSE = round(median(all_result$FVCSIM_results$test_IMSE),4),
-#   train_IMSE = round(median(all_result$FVCSIM_results$train_IMSE),4),
-#   test_R2 = round(median(all_result$FVCSIM_results$test_R2),4),
-#   train_R2 = round(median(all_result$FVCSIM_results$train_R2),4)
-# )
+FVCSIM_final_results <- list(
+  test_IMSE = round(median(all_result$FVCSIM_results$test_IMSE),4),
+  train_IMSE = round(median(all_result$FVCSIM_results$train_IMSE),4),
+  test_R2 = round(median(all_result$FVCSIM_results$test_R2),4),
+  train_R2 = round(median(all_result$FVCSIM_results$train_R2),4)
+)
 # 
-# NFVCSIM_final_results
-# FVCSIM_final_results
+NFVCSIM_final_results
+FVCSIM_final_results
 # 
 # 
